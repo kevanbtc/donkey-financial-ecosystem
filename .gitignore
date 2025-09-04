@@ -1,0 +1,51 @@
+# Dependencies
+node_modules/
+.npm
+.yarn/
+yarn-error.log*
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+logs
+*.log
+
+# Environment
+.env
+.env.local
+.env.production
+
+# Build outputs
+build/
+dist/
+out/
+
+# Cache
+.cache/
+.temp/
+
+# Config directories that shouldn't be committed
+.config/nvm/
+.config/yarn/
+
+# Foundry
+cache/
+artifacts/
+typechain/
+typechain-types/
+
+# Coverage
+coverage/
+lcov.info
+
+# Gas reports
+gas-report.txt
+
+# Local test data
+test-data/
