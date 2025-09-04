@@ -118,6 +118,96 @@ Unlike WLFI's dependency on Aave, Donkey provides **native protocols**:
 ### **Multi-Layer Security**
 - ✅ **OpenZeppelin v4.9.5**: Battle-tested contracts
 - ✅ **Circuit Breakers**: Emergency pause functionality  
+ 
+---
+
+# Unykorn B3 — Neomorph Brain (MVP)
+
+This repo now includes a minimal monorepo scaffold for the Unykorn B3 interactive system:
+
+- apps/server: Express JSON-DB server with SSE, affiliates, tx pulses, registry/appraisal endpoints.
+- apps/frontend: Vite + React + React Three Fiber scene with Affiliate + Investor HUDs.
+
+Dev servers run separately; Vite proxies `/api` to the server.
+
+## Run
+
+1) Install deps (workspace-aware):
+
+```
+npm i
+```
+
+2) Start the server (port 8787):
+
+```
+npm run server
+```
+
+3) Start the frontend (port 5173):
+
+```
+npm run frontend
+```
+
+Open http://localhost:5173
+
+## API Endpoints
+
+- `GET /api/graph` — merged graph (base + extra if present)
+- `GET /api/events/stream` — SSE stream (server-sent events)
+- `POST /api/affiliates/link { email }` — create invite link/code
+- `POST /api/register/:token` — register user; accepts `{ wallet, name, entityType, affCode }`; emits `affiliate.joined` if `affCode` is known
+- `POST /api/tx { edgeId, amountUSD, token }` — finance pulse, emits `tx.settled`
+- `GET /api/registry/polygonTokens.csv`
+- `GET /api/registry/solanaTokens.csv`
+- `GET /api/registry/tlds.csv`
+- `GET /api/appraisal/summary.md`
+- `GET /api/metrics`
+
+## SSE Event Shapes
+
+One per line (`data: <json>\n\n`):
+
+```
+{"type":"affiliate.joined","parentNodeId":"<id>","childNodeId":"<id>","ts":<ms>}
+{"type":"tx.settled","edgeId":"<source->target>","amount":<usd>,"token":"USDC|USDT|TrustUSD","ts":<ms>}
+{"type":"stake.updated","nodeId":"<id>","stakeUSD":<num>,"ts":<ms>}
+```
+
+## CURL Tests
+
+- Affiliate link:
+
+```
+curl -sX POST localhost:8787/api/affiliates/link -H 'content-type: application/json' -d '{"email":"alice@unykorn.af"}'
+```
+
+- Register (using token or code):
+
+```
+curl -sX POST localhost:8787/api/register/abcd12 -H 'content-type: application/json' -d '{"wallet":"0xabc...","name":"Alice","entityType":"client","affCode":"<CODE_FROM_PREV>"}'
+```
+
+- Finance pulse:
+
+```
+curl -sX POST localhost:8787/api/tx -H 'content-type: application/json' -d '{"edgeId":"Client:A->Subcontractor:X","amountUSD":25000,"token":"USDC"}'
+```
+
+## UMSE Pack Import
+
+Place files under `apps/server/data/umse/`:
+
+- `polygonTokens.csv`, `solanaTokens.csv`, `tlds.csv`, `summary.md`
+
+See `docs/APPRAISAL_INTEGRATION.md` for mapping details.
+
+## Notes
+
+- JSON DB persists to `apps/server/data/db.json`.
+- Frontend HUD shows affiliate stats and investor summary.
+- The 3D scene is a lightweight MVP; XR support is planned via optional `@react-three/xr`.
 - ✅ **Access Control**: Role-based permissions
 - ✅ **Reentrancy Guards**: Protection against attacks
 - ✅ **SafeERC20**: Secure token interactions
